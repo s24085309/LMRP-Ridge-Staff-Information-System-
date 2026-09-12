@@ -1,0 +1,336 @@
+// Ridge Oasis — Phase 1 data model
+// Covers users, categories, resources, tags, attachments, submissions,
+// versions, favourites, recently viewed, search logs, notifications, audit logs.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STAFF
+  CONTENT_MANAGER
+  ADMINISTRATOR
+  SUPER_ADMIN
+}
+
+enum ResourceStatus {
+  DRAFT
+  AWAITING_APPROVAL
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+  REJECTED
+  NEEDS_REVISION
+}
+
+enum RequestStatus {
+  NEW
+  OPEN
+  IN_PROGRESS
+  WAITING_FOR_INFORMATION
+  COMPLETED
+  DECLINED
+  CONVERTED_TO_RESOURCE
+}
+
+enum RequestPriority {
+  NORMAL
+  SOON
+  URGENT
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  microsoftId   String?   @unique
+  role          Role      @default(STAFF)
+  department    String?
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+
+  categoryPermissions CategoryPermission[]
+  submissions         Submission[]         @relation("SubmittedBy")
+  resourcesOwned      Resource[]            @relation("ResourceOwner")
+  resourcesApproved   Resource[]            @relation("ResourceApprover")
+  favourites          Favourite[]
+  recentlyViewed      RecentlyViewed[]
+  searchLogs          SearchLog[]
+  notifications       Notification[]
+  auditLogs           AuditLog[]
+  versionsEdited      ResourceVersion[]
+  informationRequests InformationRequest[]
+  reportedIssues      ReportedIssue[]
+
+  @@index([email])
+}
+
+model Category {
+  id           String     @id @default(cuid())
+  name         String
+  slug         String     @unique
+  icon         String?
+  description  String?
+  parentId     String?
+  parent       Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children     Category[] @relation("CategoryTree")
+  order        Int        @default(0)
+  active       Boolean    @default(true)
+
+  resources           Resource[]
+  categoryPermissions CategoryPermission[]
+  informationRequests InformationRequest[]
+
+  @@index([parentId])
+}
+
+model CategoryPermission {
+  id         String   @id @default(cuid())
+  userId     String
+  categoryId String
+  user       User     @relation(fields: [userId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([userId, categoryId])
+}
+
+enum ResourceType {
+  HOW_TO
+  PROCEDURE
+  GUIDE
+  POLICY
+  FORM
+  TEMPLATE
+  DOCUMENT
+  LINK
+  FAQ
+  BRANDING
+  OTHER
+}
+
+model Resource {
+  id             String         @id @default(cuid())
+  title          String
+  description    String?
+  content        String? // rich text / HTML content
+  externalLink   String?
+  categoryId     String
+  category       Category       @relation(fields: [categoryId], references: [id])
+  resourceType   ResourceType   @default(HOW_TO)
+  status         ResourceStatus @default(DRAFT)
+  authorId       String
+  author         User           @relation("ResourceOwner", fields: [authorId], references: [id])
+  approverId     String?
+  approver       User?          @relation("ResourceApprover", fields: [approverId], references: [id])
+  ownerLabel     String? // free-text "Information Owner", e.g. "IT Department"
+  currentVersion Int            @default(1)
+  reviewDate     DateTime?
+  lastReviewedAt DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  approvedAt     DateTime?
+
+  tags            ResourceTag[]
+  attachments     Attachment[]
+  versions        ResourceVersion[]
+  favourites      Favourite[]
+  recentlyViewed  RecentlyViewed[]
+  submission      Submission?
+  reportedIssues  ReportedIssue[]
+  sourceOfRequest InformationRequest[] @relation("ConvertedResource")
+
+  @@index([categoryId])
+  @@index([status])
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  name  String @unique
+
+  resources ResourceTag[]
+}
+
+model ResourceTag {
+  resourceId String
+  tagId      String
+  resource   Resource @relation(fields: [resourceId], references: [id])
+  tag        Tag      @relation(fields: [tagId], references: [id])
+
+  @@id([resourceId, tagId])
+}
+
+model Attachment {
+  id             String   @id @default(cuid())
+  resourceId     String
+  resource       Resource @relation(fields: [resourceId], references: [id])
+  fileName       String
+  fileType       String
+  fileSize       Int
+  storageKey     String // path/key in storage backend
+  version        Int      @default(1)
+  uploadedById   String
+  uploadedAt     DateTime @default(now())
+
+  @@index([resourceId])
+}
+
+model Submission {
+  id            String         @id @default(cuid())
+  resourceId    String?        @unique
+  resource      Resource?      @relation(fields: [resourceId], references: [id])
+  submittedById String
+  submittedBy   User           @relation("SubmittedBy", fields: [submittedById], references: [id])
+  submittedAt   DateTime       @default(now())
+  status        ResourceStatus @default(AWAITING_APPROVAL)
+  adminComments String?
+  decisionAt    DateTime?
+}
+
+model ResourceVersion {
+  id             String   @id @default(cuid())
+  resourceId     String
+  resource       Resource @relation(fields: [resourceId], references: [id])
+  versionNumber  Int
+  contentSnapshot String
+  editedById     String
+  editedBy       User     @relation(fields: [editedById], references: [id])
+  editedAt       DateTime @default(now())
+  changeNotes    String?
+
+  @@unique([resourceId, versionNumber])
+}
+
+model Favourite {
+  userId     String
+  resourceId String
+  user       User     @relation(fields: [userId], references: [id])
+  resource   Resource @relation(fields: [resourceId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@id([userId, resourceId])
+}
+
+model RecentlyViewed {
+  userId     String
+  resourceId String
+  user       User     @relation(fields: [userId], references: [id])
+  resource   Resource @relation(fields: [resourceId], references: [id])
+  viewedAt   DateTime @default(now())
+
+  @@id([userId, resourceId])
+}
+
+model SearchLog {
+  id             String    @id @default(cuid())
+  userId         String?
+  user           User?     @relation(fields: [userId], references: [id])
+  term           String
+  resultCount    Int
+  selectedResult String?
+  createdAt      DateTime  @default(now())
+
+  @@index([term])
+}
+
+model Synonym {
+  id      String @id @default(cuid())
+  term    String
+  synonym String
+
+  @@unique([term, synonym])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  type      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  action     String
+  resourceRef String?
+  details    String?
+  createdAt  DateTime @default(now())
+}
+
+model InformationRequest {
+  id                  String          @id @default(cuid())
+  requestText         String
+  reason              String?
+  categoryId          String?
+  category            Category?       @relation(fields: [categoryId], references: [id])
+  priorityRequested   RequestPriority @default(NORMAL)
+  priorityActual      RequestPriority @default(NORMAL)
+  requestedById       String
+  requestedBy         User            @relation(fields: [requestedById], references: [id])
+  status              RequestStatus   @default(NEW)
+  adminNotes          String?
+  assignedToId        String?
+  sourceSearchTerm    String?
+  convertedResourceId String?
+  convertedResource   Resource?       @relation("ConvertedResource", fields: [convertedResourceId], references: [id])
+  response            String?
+  createdAt           DateTime        @default(now())
+  resolvedAt          DateTime?
+
+  @@index([status])
+}
+
+model ReportedIssue {
+  id           String    @id @default(cuid())
+  resourceId   String
+  resource     Resource  @relation(fields: [resourceId], references: [id])
+  reportedById String
+  reportedBy   User      @relation(fields: [reportedById], references: [id])
+  issueType    String
+  details      String?
+  createdAt    DateTime  @default(now())
+  resolvedAt   DateTime?
+}
+
+model QuickLink {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  icon        String?
+  url         String
+  category    String?
+  active      Boolean @default(true)
+  order       Int     @default(0)
+}
+
+model Notice {
+  id        String    @id @default(cuid())
+  message   String
+  pinned    Boolean   @default(true)
+  expiresAt DateTime?
+  archived  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+}
+
+model Quote {
+  id       String  @id @default(cuid())
+  text     String
+  author   String?
+  category String?
+  enabled  Boolean @default(true)
+}
+
+model FunFact {
+  id       String  @id @default(cuid())
+  text     String
+  category String?
+  enabled  Boolean @default(true)
+}

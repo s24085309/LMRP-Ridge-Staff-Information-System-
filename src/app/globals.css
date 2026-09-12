@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+:root {
+  /* Ridge Oasis — Neon Teal design system */
+  --ro-navy-950: #06121a;
+  --ro-navy-900: #0a1a24;
+  --ro-navy-800: #0f2530;
+  --ro-navy-700: #16333f;
+  --ro-teal-500: #14e0c4;
+  --ro-teal-400: #3ff0d6;
+  --ro-teal-glow: rgba(20, 224, 196, 0.35);
+  --ro-card: #ffffff;
+  --ro-card-muted: #f4f7f8;
+  --ro-ink: #0c1a20;
+  --ro-ink-muted: #55696e;
+  --ro-border: rgba(20, 224, 196, 0.14);
+  --ro-warn: #f5a524;
+  --ro-danger: #f43f5e;
+  --ro-success: #2dd4a7;
+
+  --background: var(--ro-navy-950);
+  --foreground: var(--ro-ink);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-ro-navy-950: var(--ro-navy-950);
+  --color-ro-navy-900: var(--ro-navy-900);
+  --color-ro-navy-800: var(--ro-navy-800);
+  --color-ro-navy-700: var(--ro-navy-700);
+  --color-ro-teal-500: var(--ro-teal-500);
+  --color-ro-teal-400: var(--ro-teal-400);
+  --color-ro-card: var(--ro-card);
+  --color-ro-card-muted: var(--ro-card-muted);
+  --color-ro-ink: var(--ro-ink);
+  --color-ro-ink-muted: var(--ro-ink-muted);
+  --color-ro-warn: var(--ro-warn);
+  --color-ro-danger: var(--ro-danger);
+  --color-ro-success: var(--ro-success);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.ro-glow-border {
+  border: 1px solid var(--ro-border);
+  box-shadow: 0 0 0 1px rgba(20, 224, 196, 0.06), 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.ro-teal-text {
+  color: var(--ro-teal-500);
+}
+
+.ro-focus-ring:focus-visible {
+  outline: 2px solid var(--ro-teal-500);
+  outline-offset: 2px;
+}
+
+.ro-sticky-note {
+  background: linear-gradient(180deg, #ffffff, #fbfefc);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ro-sticky-note:hover {
+  transform: rotate(0deg) translateY(-2px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.16);
+}
