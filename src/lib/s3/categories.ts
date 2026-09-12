@@ -1,7 +1,9 @@
-// Default seed data for S³ support categories/subcategories, alphabetically
-// ordered — this also makes each <select>'s native "type a letter to jump"
-// behaviour predictable. Configurable by admins at runtime (Section 67)
-// once that settings UI is built — this only bootstraps a fresh database.
+// Default seed data for S³ support categories/subcategories: alphabetical,
+// with "Other" pinned to the end of each list (both the main category list
+// and every subcategory list) rather than sorted strictly by letter. This
+// also makes each <select>'s native "type a letter to jump" behaviour
+// predictable. Configurable by admins at runtime (Section 67) once that
+// settings UI is built — this only bootstraps a fresh database.
 export const SUPPORT_CATEGORIES: Array<{ name: string; subcategories: string[] }> = [
   {
     name: "Academic",
@@ -12,14 +14,14 @@ export const SUPPORT_CATEGORIES: Array<{ name: string; subcategories: string[] }
       "Literacy",
       "Motivation",
       "Numeracy",
-      "Other",
       "Study skills",
       "Test/exam concerns",
+      "Other",
     ],
   },
   {
     name: "Attendance",
-    subcategories: ["Early departure", "Frequent absence", "Other", "Persistent lateness", "Truancy", "Unexplained absence"],
+    subcategories: ["Early departure", "Frequent absence", "Persistent lateness", "Truancy", "Unexplained absence", "Other"],
   },
   {
     name: "Behaviour",
@@ -30,20 +32,20 @@ export const SUPPORT_CATEGORIES: Array<{ name: string; subcategories: string[] }
       "Defiance",
       "Disruptive behaviour",
       "Inappropriate language",
-      "Other",
       "Repeated rule-breaking",
       "Withdrawal",
+      "Other",
     ],
   },
   {
     name: "Bullying",
     subcategories: [
       "Cyberbullying",
-      "Other",
       "Physical bullying",
       "Social/relational bullying",
       "Suspected bullying (unconfirmed)",
       "Verbal bullying",
+      "Other",
     ],
   },
   {
@@ -55,8 +57,8 @@ export const SUPPORT_CATEGORIES: Array<{ name: string; subcategories: string[] }
       "Easily distracted",
       "Excessive talking",
       "Frequently off-task",
-      "Other",
       "Restlessness",
+      "Other",
     ],
   },
   {
@@ -67,19 +69,19 @@ export const SUPPORT_CATEGORIES: Array<{ name: string; subcategories: string[] }
       "Family conflict",
       "Financial hardship",
       "Housing instability",
-      "Other",
       "Parental separation/divorce",
+      "Other",
     ],
   },
   {
     name: "Learning Difficulties",
     subcategories: [
       "Diagnosed learning difficulty requiring support",
-      "Other",
       "Processing speed concern",
       "Reading difficulty",
       "Suspected learning difficulty",
       "Writing difficulty",
+      "Other",
     ],
   },
   {
@@ -92,7 +94,6 @@ export const SUPPORT_CATEGORIES: Array<{ name: string; subcategories: string[] }
       "Other",
     ],
   },
-  { name: "Other", subcategories: ["Other"] },
   {
     name: "Peer Relationships",
     subcategories: [
@@ -100,8 +101,8 @@ export const SUPPORT_CATEGORIES: Array<{ name: string; subcategories: string[] }
       "Exclusion from peer group",
       "Falling out with friends",
       "Group conflict",
-      "Other",
       "Peer pressure",
+      "Other",
     ],
   },
   {
@@ -112,9 +113,9 @@ export const SUPPORT_CATEGORIES: Array<{ name: string; subcategories: string[] }
       "Family circumstances",
       "Grief/loss",
       "Mood changes",
-      "Other",
       "Self-esteem",
       "Social difficulties",
+      "Other",
     ],
   },
   {
@@ -126,23 +127,24 @@ export const SUPPORT_CATEGORIES: Array<{ name: string; subcategories: string[] }
     subcategories: [
       "Concern for emotional safety",
       "Concern for physical safety",
-      "Other",
       "Risk-taking behaviour",
       "Unsafe environment (home/school)",
+      "Other",
     ],
   },
   {
     name: "Social",
-    subcategories: ["Conflict with peers", "Difficulty in group work", "Difficulty making friends", "Other", "Social isolation", "Social skills concerns"],
+    subcategories: ["Conflict with peers", "Difficulty in group work", "Difficulty making friends", "Social isolation", "Social skills concerns", "Other"],
   },
   {
     name: "Substance Concern",
-    subcategories: ["Other", "Peer influence concern", "Possession", "Suspected substance use", "Under the influence at school"],
+    subcategories: ["Peer influence concern", "Possession", "Suspected substance use", "Under the influence at school", "Other"],
   },
   {
     name: "Technology / Online Concern",
-    subcategories: ["Cyberbullying", "Excessive screen time", "Inappropriate online content", "Online safety concern", "Other", "Social media conflict"],
+    subcategories: ["Cyberbullying", "Excessive screen time", "Inappropriate online content", "Online safety concern", "Social media conflict", "Other"],
   },
+  { name: "Other", subcategories: ["Other"] },
 ];
 
 export const ACTIVITY_TYPES = [
@@ -150,9 +152,9 @@ export const ACTIVITY_TYPES = [
   "Break",
   "Culture",
   "General School",
-  "Other",
   "Sport",
   "Subject",
+  "Other",
 ] as const;
 
 export const SUBJECTS = [
@@ -175,7 +177,6 @@ export const ACTION_TYPES = [
   "Learner meeting",
   "Monitoring initiated",
   "No action required",
-  "Other",
   "Parent meeting",
   "Referred to academic support",
   "Referred to counselling/support",
@@ -184,4 +185,5 @@ export const ACTION_TYPES = [
   "Spoke to parent/guardian",
   "Spoke to staff member",
   "Teacher meeting",
+  "Other",
 ] as const;
