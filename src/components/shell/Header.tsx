@@ -1,5 +1,6 @@
 import SearchBar from "@/components/search/SearchBar";
 import MobileNav from "@/components/shell/MobileNav";
+import NotificationBell from "@/components/shell/NotificationBell";
 import { prisma } from "@/lib/prisma";
 
 export default async function Header({
@@ -25,15 +26,7 @@ export default async function Header({
         <SearchBar compact />
       </div>
 
-      <button
-        aria-label="Notifications"
-        className="ro-focus-ring rounded-full p-2 text-slate-300 hover:bg-white/5 hover:text-white"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-          <path d="M6 8a6 6 0 1 1 12 0c0 4 1.5 5 1.5 6.5H4.5C4.5 13 6 12 6 8Z" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M10 19a2 2 0 0 0 4 0" strokeLinecap="round" />
-        </svg>
-      </button>
+      <NotificationBell />
 
       <div className="flex items-center gap-2">
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-ro-teal-500/20 text-sm font-semibold ro-teal-text">

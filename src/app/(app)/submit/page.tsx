@@ -1,7 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { submitResource } from "./actions";
+import { MAX_UPLOAD_BYTES } from "@/lib/uploads";
 
-export default async function SubmitPage() {
+export default async function SubmitPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   const categories = await prisma.category.findMany({
     where: { active: true },
     orderBy: { order: "asc" },
@@ -16,7 +22,13 @@ export default async function SubmitPage() {
         <span className="text-amber-300">Status: Draft / Awaiting Approval.</span>
       </p>
 
-      <form action={submitResource} className="mt-6 space-y-5">
+      {error && (
+        <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          {error}
+        </p>
+      )}
+
+      <form action={submitResource} encType="multipart/form-data" className="mt-6 space-y-5">
         <Field label="Title">
           <input
             name="title"
@@ -89,10 +101,17 @@ export default async function SubmitPage() {
           />
         </Field>
 
-        <p className="text-xs text-slate-500">
-          File attachments — <span className="text-amber-300">Coming Soon</span> (needs secure
-          upload storage, Section 17).
-        </p>
+        <Field label="Attachment (optional)">
+          <input
+            name="attachment"
+            type="file"
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.gif"
+            className="ro-focus-ring w-full rounded-lg border border-white/10 bg-ro-navy-900 px-3 py-2 text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-ro-teal-500/20 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-ro-teal-500 hover:file:bg-ro-teal-500/30"
+          />
+          <p className="mt-1 text-xs text-slate-500">
+            PDF, Word, Excel, PowerPoint, or image. Max {MAX_UPLOAD_BYTES / (1024 * 1024)}MB.
+          </p>
+        </Field>
 
         <button
           type="submit"

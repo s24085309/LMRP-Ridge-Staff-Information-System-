@@ -57,9 +57,18 @@ export default async function SupportCasePage({ params }: { params: Promise<{ id
       <p className="font-mono text-xs text-slate-500">{request.referenceNumber}</p>
       <div className="mt-1 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-white">Learner Support Case</h1>
-        <span className="rounded-full border border-ro-teal-500/40 px-3 py-1 text-xs text-ro-teal-500">
-          {STATUS_LABEL[request.status]}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="rounded-full border border-ro-teal-500/40 px-3 py-1 text-xs text-ro-teal-500">
+            {STATUS_LABEL[request.status]}
+          </span>
+          <Link
+            href={`/s3/requests/${request.id}/print`}
+            target="_blank"
+            className="ro-focus-ring rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-200 hover:border-ro-teal-500/40"
+          >
+            📄 Export Case
+          </Link>
+        </div>
       </div>
 
       <section className="mt-6 rounded-xl border border-white/10 bg-ro-navy-900 p-5">

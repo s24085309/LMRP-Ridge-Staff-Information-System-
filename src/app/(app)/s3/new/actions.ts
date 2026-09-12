@@ -87,6 +87,7 @@ export async function createSupportRequest(formData: FormData) {
       userId: h.id,
       message: `New Student Support Request – ${referenceNumber}`,
       type: "S3_NEW_REQUEST",
+      link: `/s3/requests/${request.id}`,
     })),
   });
 

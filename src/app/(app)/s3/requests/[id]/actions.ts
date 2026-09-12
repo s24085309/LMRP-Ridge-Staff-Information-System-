@@ -21,6 +21,17 @@ export async function updateCaseStatus(requestId: string, status: string, priori
     },
   });
 
+  if (before.status !== status) {
+    await prisma.notification.create({
+      data: {
+        userId: before.submittedById,
+        message: `Your Student Support Request (${before.referenceNumber}) has been reviewed.`,
+        type: "S3_STATUS_CHANGED",
+        link: `/s3/requests/${requestId}`,
+      },
+    });
+  }
+
   await prisma.auditLog.create({
     data: {
       userId: adminId,

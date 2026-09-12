@@ -35,6 +35,7 @@ export async function approveResource(resourceId: string) {
         userId: resource.authorId,
         message: `Your submission "${resource.title}" has been approved and published.`,
         type: "SUBMISSION_APPROVED",
+        link: `/resources/${resource.id}`,
       },
     });
 
@@ -65,6 +66,7 @@ export async function rejectResource(resourceId: string, reason: string) {
       userId: resource.authorId,
       message: `Your submission "${resource.title}" was rejected: ${reason}`,
       type: "SUBMISSION_REJECTED",
+      link: `/resources/${resource.id}`,
     },
   });
 
@@ -94,6 +96,7 @@ export async function returnForRevision(resourceId: string, reason: string) {
       userId: resource.authorId,
       message: `Your submission "${resource.title}" needs changes: ${reason}`,
       type: "SUBMISSION_NEEDS_REVISION",
+      link: `/resources/${resource.id}`,
     },
   });
 

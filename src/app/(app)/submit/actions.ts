@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import type { ResourceType } from "@prisma/client";
+import { validateUpload, storeUpload } from "@/lib/uploads";
 
 export async function submitResource(formData: FormData) {
   const session = await auth();
@@ -22,6 +23,14 @@ export async function submitResource(formData: FormData) {
     .filter(Boolean);
 
   if (!title || !categoryId) return;
+
+  const file = formData.get("attachment");
+  if (file instanceof File && file.size > 0) {
+    const validationError = validateUpload(file);
+    if (validationError) {
+      redirect(`/submit?error=${encodeURIComponent(validationError.error)}`);
+    }
+  }
 
   const resource = await prisma.resource.create({
     data: {
@@ -52,6 +61,20 @@ export async function submitResource(formData: FormData) {
       status: "AWAITING_APPROVAL",
     },
   });
+
+  if (file instanceof File && file.size > 0) {
+    const stored = await storeUpload(file);
+    await prisma.attachment.create({
+      data: {
+        resourceId: resource.id,
+        fileName: stored.fileName,
+        fileType: stored.fileType,
+        fileSize: stored.fileSize,
+        storageKey: stored.storageKey,
+        uploadedById: userId,
+      },
+    });
+  }
 
   redirect("/submit/thanks");
 }

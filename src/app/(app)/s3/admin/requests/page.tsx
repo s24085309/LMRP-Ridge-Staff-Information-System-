@@ -47,7 +47,15 @@ export default async function AdminRequestsPage({
 
   return (
     <main className="mx-auto max-w-5xl p-6">
-      <h1 className="text-xl font-semibold text-white">Learner Support Requests</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-white">Learner Support Requests</h1>
+        <a
+          href={`/api/s3/export/requests?q=${encodeURIComponent(query)}&status=${encodeURIComponent(status ?? "")}`}
+          className="ro-focus-ring rounded-lg border border-white/10 px-3 py-1.5 text-sm text-slate-200 hover:border-ro-teal-500/40"
+        >
+          ⬇ Export Excel/CSV
+        </a>
+      </div>
 
       <form className="mt-4 flex flex-wrap gap-3">
         <input
