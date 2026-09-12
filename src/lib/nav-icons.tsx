@@ -135,13 +135,14 @@ export const CATEGORY_ICON_MAP: Record<string, (props: IconProps) => ReactElemen
 
 /**
  * Renders a category's configured icon. Administrators can set `icon` to
- * either a key from CATEGORY_ICON_MAP (a line-icon) or a raw emoji (e.g.
- * "🛟") — anything not found in the map is rendered as literal text, which
- * covers emoji for free since they're just characters.
+ * either a key from CATEGORY_ICON_MAP (a line-icon), a raw emoji (e.g.
+ * "🛟" — rendered as literal text, which covers emoji for free since
+ * they're just characters), or leave it unset to fold the icon into the
+ * category name instead (no separate icon slot is rendered).
  */
 export function CategoryIcon({ icon }: { icon: string | null }) {
   const Icon = icon ? CATEGORY_ICON_MAP[icon] : undefined;
   if (Icon) return <Icon />;
   if (icon) return <span aria-hidden="true">{icon}</span>;
-  return <IconFolder />;
+  return null;
 }

@@ -59,7 +59,7 @@ export default function MobileNav({
               <NavItem
                 key={c.slug}
                 href={`/categories/${c.slug}`}
-                icon={<CategoryIcon icon={c.icon} />}
+                icon={c.icon ? <CategoryIcon icon={c.icon} /> : null}
                 label={c.name}
                 onClick={() => setOpen(false)}
               />
@@ -116,7 +116,7 @@ function NavItem({
       onClick={onClick}
       className="ro-focus-ring flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/5 hover:text-white"
     >
-      <span className="text-ro-teal-500">{icon}</span>
+      {icon && <span className="text-ro-teal-500">{icon}</span>}
       {label}
     </Link>
   );
