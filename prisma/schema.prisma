@@ -15,6 +15,7 @@ enum Role {
   STAFF
   CONTENT_MANAGER
   ADMINISTRATOR
+  LEARNER_SUPPORT_HEAD
   SUPER_ADMIN
 }
 
@@ -66,6 +67,13 @@ model User {
   versionsEdited      ResourceVersion[]
   informationRequests InformationRequest[]
   reportedIssues      ReportedIssue[]
+
+  supportRequestsSubmitted SupportRequest[]      @relation("SupportSubmittedBy")
+  supportRequestsReviewed  SupportRequest[]      @relation("SupportReviewedBy")
+  supportActions           SupportAction[]
+  supportNotes             SupportNote[]
+  supportFollowUps         SupportFollowUp[]     @relation("FollowUpResponsible")
+  s3InformationRequests    S3InformationRequest[]
 
   @@index([email])
 }
@@ -333,4 +341,174 @@ model FunFact {
   text     String
   category String?
   enabled  Boolean @default(true)
+}
+
+// =============================================================
+// S³ — Student Support System
+// A separate module sharing Ridge Oasis's login/users/audit log.
+// Original staff submissions (Learner, category/subcategory,
+// activity, comment, submittedBy, submittedAt) are never edited
+// after creation — only appended to (notes/actions/follow-ups) or
+// have their review-only fields (status/priority/reviewedBy) set.
+// =============================================================
+
+enum LearnerStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Learner {
+  id         String        @id @default(cuid())
+  learnerId  String        @unique // school-assigned learner number
+  firstName  String
+  surname    String
+  grade      Int?
+  class      String?
+  status     LearnerStatus @default(ACTIVE)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  supportRequests SupportRequest[]
+
+  @@index([surname])
+  @@index([learnerId])
+}
+
+model SupportCategory {
+  id     String @id @default(cuid())
+  name   String @unique
+  active Boolean @default(true)
+  order  Int     @default(0)
+
+  subcategories   SupportSubcategory[]
+  supportRequests SupportRequest[]
+}
+
+model SupportSubcategory {
+  id         String          @id @default(cuid())
+  categoryId String
+  category   SupportCategory @relation(fields: [categoryId], references: [id])
+  name       String
+  active     Boolean         @default(true)
+
+  supportRequests SupportRequest[]
+
+  @@unique([categoryId, name])
+}
+
+enum SupportRequestStatus {
+  SUBMITTED
+  RECEIVED
+  UNDER_REVIEW
+  ACTION_REQUIRED
+  FOLLOW_UP
+  MONITORING
+  REFERRED
+  RESOLVED
+  CLOSED
+}
+
+enum SupportPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model SupportRequest {
+  id             String   @id @default(cuid())
+  referenceNumber String  @unique // e.g. S3-2026-000001
+
+  // --- Original submission: immutable once created ---
+  learnerId      String
+  learner        Learner  @relation(fields: [learnerId], references: [id])
+  submittedById  String
+  submittedBy    User     @relation("SupportSubmittedBy", fields: [submittedById], references: [id])
+  categoryId     String
+  category       SupportCategory @relation(fields: [categoryId], references: [id])
+  subcategoryId  String?
+  subcategory    SupportSubcategory? @relation(fields: [subcategoryId], references: [id])
+  activityType   String   // Subject / Sport / Culture / General School / Break / Before-After School / Other
+  activityName   String?  // e.g. "Mathematics", "Netball"
+  comment        String   // staff member's original factual account — never edited
+  submittedAt    DateTime @default(now())
+
+  // --- Review / management fields: admin-editable ---
+  status         SupportRequestStatus @default(SUBMITTED)
+  priority       SupportPriority      @default(NORMAL)
+  reviewedAt     DateTime?
+  reviewedById   String?
+  reviewedBy     User?    @relation("SupportReviewedBy", fields: [reviewedById], references: [id])
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  actions   SupportAction[]
+  notes     SupportNote[]
+  followUps SupportFollowUp[]
+
+  @@index([status])
+  @@index([learnerId])
+  @@index([submittedById])
+}
+
+model SupportAction {
+  id               String         @id @default(cuid())
+  supportRequestId String
+  supportRequest   SupportRequest @relation(fields: [supportRequestId], references: [id])
+  actionType       String
+  notes            String?
+  createdById      String
+  createdBy        User           @relation(fields: [createdById], references: [id])
+  createdAt        DateTime       @default(now())
+
+  @@index([supportRequestId])
+}
+
+model SupportNote {
+  id               String         @id @default(cuid())
+  supportRequestId String
+  supportRequest   SupportRequest @relation(fields: [supportRequestId], references: [id])
+  note             String
+  authorId         String
+  author           User           @relation(fields: [authorId], references: [id])
+  createdAt        DateTime       @default(now())
+
+  @@index([supportRequestId])
+}
+
+model SupportFollowUp {
+  id               String         @id @default(cuid())
+  supportRequestId String
+  supportRequest   SupportRequest @relation(fields: [supportRequestId], references: [id])
+  followUpDate     DateTime
+  responsibleUserId String
+  responsibleUser  User           @relation("FollowUpResponsible", fields: [responsibleUserId], references: [id])
+  notes            String?
+  outcome          String?
+  completed        Boolean        @default(false)
+  completedAt      DateTime?
+  createdAt        DateTime       @default(now())
+
+  @@index([supportRequestId])
+  @@index([followUpDate])
+}
+
+enum S3RequestStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  DECLINED
+}
+
+model S3InformationRequest {
+  id             String          @id @default(cuid())
+  requestedById  String
+  requestedBy    User            @relation(fields: [requestedById], references: [id])
+  requestText    String
+  category       String?
+  status         S3RequestStatus @default(OPEN)
+  adminResponse  String?
+  createdAt      DateTime        @default(now())
+  completedAt    DateTime?
 }

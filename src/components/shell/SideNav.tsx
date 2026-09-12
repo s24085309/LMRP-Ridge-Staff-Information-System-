@@ -34,6 +34,8 @@ export default async function SideNav({ isAdmin }: { isAdmin: boolean }) {
           />
         ))}
 
+        <NavItem href="/s3" icon={null} label="🛟S³ - Student Support System" />
+
         <li className="my-3 border-t border-white/5" />
 
         <NavItem href="/favourites" icon={<IconStar />} label="Favourites" />

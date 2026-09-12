@@ -65,6 +65,13 @@ export default function MobileNav({
               />
             ))}
 
+            <NavItem
+              href="/s3"
+              icon={null}
+              label="🛟S³ - Student Support System"
+              onClick={() => setOpen(false)}
+            />
+
             <div className="my-2 border-t border-white/5" />
 
             <NavItem href="/favourites" icon={<IconStar />} label="Favourites" onClick={() => setOpen(false)} />

@@ -1,5 +1,7 @@
 import { PrismaClient, Role, ResourceStatus, ResourceType } from "@prisma/client";
 import { DEFAULT_CATEGORIES } from "../src/lib/categories";
+import { SUPPORT_CATEGORIES } from "../src/lib/s3/categories";
+import { nextReferenceNumber } from "../src/lib/s3/reference-number";
 
 const prisma = new PrismaClient();
 
@@ -97,23 +99,6 @@ async function main() {
       resourceType: ResourceType.BRANDING,
       tags: ["letterhead", "branding", "official documents"],
     },
-    {
-      title: "How to Refer a Learner to Student Support (S³)",
-      description: "Process for referring a learner who needs academic, wellbeing or pastoral support.",
-      content:
-        "<h2>Step 1</h2><p>Open the S³ referral form and select the support type: academic, wellbeing, or pastoral.</p><h2>Step 2</h2><p>Describe the concern and any relevant background.</p><h2>Step 3</h2><p>Submit — the Student Support team will follow up with you and the learner.</p>",
-      categorySlug: "student-support",
-      resourceType: ResourceType.PROCEDURE,
-      tags: ["s3", "student support", "referral", "wellbeing", "pastoral", "counselling"],
-    },
-    {
-      title: "Student Support (S³) Referral Form",
-      description: "Form used to refer a learner to the Student Support team.",
-      content: "<p>Use this form to submit a new Student Support referral.</p>",
-      categorySlug: "student-support",
-      resourceType: ResourceType.FORM,
-      tags: ["s3", "student support", "referral form"],
-    },
   ];
 
   for (const r of sampleResources) {
@@ -201,7 +186,137 @@ async function main() {
     },
   });
 
-  console.log("Seed complete.", { admin: admin.email, staff: staff.email });
+  // ---------------- S3 Student Support System ----------------
+
+  const supportHead = await prisma.user.upsert({
+    where: { email: "support@ridgeoasis.school" },
+    update: {},
+    create: {
+      name: "Learner Support Head",
+      email: "support@ridgeoasis.school",
+      role: Role.LEARNER_SUPPORT_HEAD,
+      department: "Student Support",
+    },
+  });
+
+  const supportCategoryIds = new Map<string, string>();
+  const supportSubcategoryIds = new Map<string, string>(); // key: "categoryName::subName"
+
+  for (const [index, c] of SUPPORT_CATEGORIES.entries()) {
+    const category = await prisma.supportCategory.upsert({
+      where: { name: c.name },
+      update: { order: index },
+      create: { name: c.name, order: index },
+    });
+    supportCategoryIds.set(c.name, category.id);
+
+    for (const subName of c.subcategories) {
+      const sub = await prisma.supportSubcategory.upsert({
+        where: { categoryId_name: { categoryId: category.id, name: subName } },
+        update: {},
+        create: { categoryId: category.id, name: subName },
+      });
+      supportSubcategoryIds.set(`${c.name}::${subName}`, sub.id);
+    }
+  }
+
+  const sampleLearners: Array<{ learnerId: string; firstName: string; surname: string; grade: number; class: string }> = [
+    { learnerId: "100234", firstName: "John", surname: "Smith", grade: 8, class: "8A" },
+    { learnerId: "100235", firstName: "James", surname: "Smith", grade: 9, class: "9B" },
+    { learnerId: "100236", firstName: "Jason", surname: "Smith", grade: 10, class: "10A" },
+    { learnerId: "100241", firstName: "Sarah", surname: "Jones", grade: 7, class: "7C" },
+  ];
+
+  const learners = new Map<string, string>();
+  for (const l of sampleLearners) {
+    const learner = await prisma.learner.upsert({
+      where: { learnerId: l.learnerId },
+      update: {},
+      create: l,
+    });
+    learners.set(l.learnerId, learner.id);
+  }
+
+  const existingRequests = await prisma.supportRequest.count();
+  if (existingRequests === 0) {
+    const johnSmithId = learners.get("100234")!;
+    const sarahJonesId = learners.get("100241")!;
+
+    const behaviourCatId = supportCategoryIds.get("Behaviour")!;
+    const behaviourSubId = supportSubcategoryIds.get("Behaviour::Disruptive behaviour")!;
+    const academicCatId = supportCategoryIds.get("Academic")!;
+    const academicSubId = supportSubcategoryIds.get("Academic::Declining academic performance")!;
+
+    const ref1 = await nextReferenceNumber();
+    const req1 = await prisma.supportRequest.create({
+      data: {
+        referenceNumber: ref1,
+        learnerId: johnSmithId,
+        submittedById: staff.id,
+        categoryId: behaviourCatId,
+        subcategoryId: behaviourSubId,
+        activityType: "Subject",
+        activityName: "Mathematics",
+        comment:
+          "John was repeatedly disruptive during class today, calling out and distracting nearby learners despite two reminders.",
+        status: "UNDER_REVIEW",
+        priority: "NORMAL",
+        reviewedAt: new Date(),
+        reviewedById: supportHead.id,
+      },
+    });
+
+    await prisma.supportNote.create({
+      data: {
+        supportRequestId: req1.id,
+        note: "Spoke to John after class — he mentioned he didn't sleep well. Will monitor over the next week.",
+        authorId: supportHead.id,
+      },
+    });
+
+    await prisma.supportAction.create({
+      data: {
+        supportRequestId: req1.id,
+        actionType: "Spoke to learner",
+        createdById: supportHead.id,
+      },
+    });
+
+    await prisma.supportFollowUp.create({
+      data: {
+        supportRequestId: req1.id,
+        followUpDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        responsibleUserId: supportHead.id,
+        notes: "Check in with John's teachers to see if behaviour has settled.",
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: staff.id,
+        action: "S3_REQUEST_SUBMITTED",
+        resourceRef: req1.id,
+        details: ref1,
+      },
+    });
+
+    const ref2 = await nextReferenceNumber();
+    await prisma.supportRequest.create({
+      data: {
+        referenceNumber: ref2,
+        learnerId: sarahJonesId,
+        submittedById: staff.id,
+        categoryId: academicCatId,
+        subcategoryId: academicSubId,
+        activityType: "Subject",
+        activityName: "English",
+        comment: "Sarah's essay marks have dropped significantly over the last month and she seems disengaged.",
+        status: "SUBMITTED",
+      },
+    });
+  }
+
+  console.log("Seed complete.", { admin: admin.email, staff: staff.email, supportHead: supportHead.email });
 }
 
 main()
