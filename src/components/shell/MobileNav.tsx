@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import {
-  CATEGORY_ICON_MAP,
-  IconFolder,
+  CategoryIcon,
   IconHome,
   IconPlus,
   IconShield,
@@ -56,18 +55,15 @@ export default function MobileNav({
 
             <NavItem href="/dashboard" icon={<IconHome />} label="Dashboard" onClick={() => setOpen(false)} />
 
-            {categories.map((c) => {
-              const Icon = (c.icon && CATEGORY_ICON_MAP[c.icon]) || IconFolder;
-              return (
-                <NavItem
-                  key={c.slug}
-                  href={`/categories/${c.slug}`}
-                  icon={<Icon />}
-                  label={c.name}
-                  onClick={() => setOpen(false)}
-                />
-              );
-            })}
+            {categories.map((c) => (
+              <NavItem
+                key={c.slug}
+                href={`/categories/${c.slug}`}
+                icon={<CategoryIcon icon={c.icon} />}
+                label={c.name}
+                onClick={() => setOpen(false)}
+              />
+            ))}
 
             <div className="my-2 border-t border-white/5" />
 

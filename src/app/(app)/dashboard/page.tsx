@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { DEFAULT_CATEGORIES } from "@/lib/categories";
 import { pickOfTheDay } from "@/lib/daily-pick";
 import SearchBar from "@/components/search/SearchBar";
-import { CATEGORY_ICON_MAP, IconFolder } from "@/lib/nav-icons";
+import { CategoryIcon } from "@/lib/nav-icons";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -63,16 +63,16 @@ export default async function DashboardPage() {
         </h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
           {(categories.length ? categories : DEFAULT_CATEGORIES).map((c) => {
-            const Icon = ("icon" in c && c.icon && CATEGORY_ICON_MAP[c.icon]) || IconFolder;
             const slug = "slug" in c ? c.slug : "";
+            const icon = "icon" in c ? c.icon : null;
             return (
               <Link
                 key={slug}
                 href={`/categories/${slug}`}
                 className="ro-focus-ring flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-ro-navy-900 p-4 text-center transition hover:border-ro-teal-500/40"
               >
-                <span className="text-ro-teal-500">
-                  <Icon />
+                <span className="text-ro-teal-500 text-xl leading-none">
+                  <CategoryIcon icon={icon} />
                 </span>
                 <span className="text-xs text-slate-200">{c.name}</span>
               </Link>

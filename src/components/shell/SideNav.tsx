@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import {
-  CATEGORY_ICON_MAP,
-  IconFolder,
+  CategoryIcon,
   IconHome,
   IconPlus,
   IconShield,
@@ -26,17 +25,14 @@ export default async function SideNav({ isAdmin }: { isAdmin: boolean }) {
       <ul className="flex-1 space-y-1 overflow-y-auto">
         <NavItem href="/dashboard" icon={<IconHome />} label="Dashboard" />
 
-        {categories.map((c) => {
-          const Icon = (c.icon && CATEGORY_ICON_MAP[c.icon]) || IconFolder;
-          return (
-            <NavItem
-              key={c.id}
-              href={`/categories/${c.slug}`}
-              icon={<Icon />}
-              label={c.name}
-            />
-          );
-        })}
+        {categories.map((c) => (
+          <NavItem
+            key={c.id}
+            href={`/categories/${c.slug}`}
+            icon={<CategoryIcon icon={c.icon} />}
+            label={c.name}
+          />
+        ))}
 
         <li className="my-3 border-t border-white/5" />
 

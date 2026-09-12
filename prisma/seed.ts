@@ -97,6 +97,23 @@ async function main() {
       resourceType: ResourceType.BRANDING,
       tags: ["letterhead", "branding", "official documents"],
     },
+    {
+      title: "How to Refer a Learner to Student Support (S³)",
+      description: "Process for referring a learner who needs academic, wellbeing or pastoral support.",
+      content:
+        "<h2>Step 1</h2><p>Open the S³ referral form and select the support type: academic, wellbeing, or pastoral.</p><h2>Step 2</h2><p>Describe the concern and any relevant background.</p><h2>Step 3</h2><p>Submit — the Student Support team will follow up with you and the learner.</p>",
+      categorySlug: "student-support",
+      resourceType: ResourceType.PROCEDURE,
+      tags: ["s3", "student support", "referral", "wellbeing", "pastoral", "counselling"],
+    },
+    {
+      title: "Student Support (S³) Referral Form",
+      description: "Form used to refer a learner to the Student Support team.",
+      content: "<p>Use this form to submit a new Student Support referral.</p>",
+      categorySlug: "student-support",
+      resourceType: ResourceType.FORM,
+      tags: ["s3", "student support", "referral form"],
+    },
   ];
 
   for (const r of sampleResources) {
