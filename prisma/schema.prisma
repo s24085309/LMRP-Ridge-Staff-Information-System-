@@ -47,6 +47,7 @@ enum RequestPriority {
 
 model User {
   id            String    @id @default(cuid())
+  staffId       String?   @unique
   name          String
   email         String    @unique
   microsoftId   String?   @unique

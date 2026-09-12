@@ -116,6 +116,7 @@ async function AdminHome() {
         <QuickAction href="/s3/admin/follow-ups" label="📅 Follow-Ups" />
         <QuickAction href="/s3/admin/info-requests" label="💡 Information Requests" />
         <QuickAction href="/s3/admin/reports" label="📊 Reports" />
+        <QuickAction href="/s3/admin/settings/categories" label="⚙️ Categories" />
       </div>
     </main>
   );

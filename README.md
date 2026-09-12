@@ -43,6 +43,35 @@ npx prisma migrate dev
 npm run dev
 ```
 
+## Database backups (SQLite dev database)
+
+`npm run dev`, `npm run db:seed`, and `npm run db:migrate` each **automatically
+snapshot `prisma/dev.db` first**, into `prisma/backups/dev-<timestamp>.db`
+(kept: the most recent 20). This exists because `prisma migrate dev` can reset
+the database on schema drift, and running things twice can compound that —
+so there's always a recent copy to fall back to. Every backup run prints
+exactly where it saved to, e.g.:
+
+```
+[backup-db] Backed up dev.db -> prisma\backups\dev-2026-09-12T15-00-04-371Z.db
+```
+
+To restore the most recent backup:
+
+```bash
+npm run db:restore
+```
+
+Or a specific one:
+
+```bash
+node scripts/restore-db.mjs dev-2026-09-12T15-00-04-371Z.db
+```
+
+Restoring itself first snapshots whatever `dev.db` currently has, so it's
+never a one-way trip. Backups live only on your machine (`prisma/backups/`
+is gitignored) since they contain real data once you've seeded/used the app.
+
 Visit http://localhost:3000. Use the temporary dev sign-in with
 `admin@ridgeoasis.school` (Super Admin) or `staff@ridgeoasis.school` (Staff)
 — these are seeded by `prisma/seed.ts`.

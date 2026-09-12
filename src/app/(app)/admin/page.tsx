@@ -33,7 +33,17 @@ export default async function AdminHomePage() {
 
   return (
     <main className="mx-auto max-w-5xl space-y-8 p-6">
-      <h1 className="text-2xl font-bold text-white">Ridge Oasis Administration</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-white">Ridge Oasis Administration</h1>
+        <div className="flex gap-2">
+          <Link href="/admin/settings" className="ro-focus-ring rounded-lg border border-white/10 px-3 py-1.5 text-sm text-slate-200 hover:border-ro-teal-500/40">
+            ⚙️ Settings
+          </Link>
+          <Link href="/admin/users" className="ro-focus-ring rounded-lg border border-white/10 px-3 py-1.5 text-sm text-slate-200 hover:border-ro-teal-500/40">
+            👥 Manage Staff
+          </Link>
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
         <StatCard label="New Submissions" value={newSubmissions} color="text-red-400" />

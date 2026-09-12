@@ -28,7 +28,15 @@ export default async function AdminLearnersPage({
 
   return (
     <main className="mx-auto max-w-4xl p-6">
-      <h1 className="text-xl font-semibold text-white">Learners</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-white">Learners</h1>
+        <Link
+          href="/s3/admin/learners/import"
+          className="ro-focus-ring rounded-lg border border-white/10 px-3 py-1.5 text-sm text-slate-200 hover:border-ro-teal-500/40"
+        >
+          ⬆ Import Learners
+        </Link>
+      </div>
 
       <form className="mt-4">
         <input
