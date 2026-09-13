@@ -8,6 +8,7 @@ import {
   IconShield,
   IconStar,
   IconClock,
+  IconCalendar,
 } from "@/lib/nav-icons";
 
 export default async function SideNav({ isAdmin }: { isAdmin: boolean }) {
@@ -25,6 +26,7 @@ export default async function SideNav({ isAdmin }: { isAdmin: boolean }) {
 
       <ul className="flex-1 space-y-1 overflow-y-auto">
         <NavItem href="/dashboard" icon={<IconHome />} label="Dashboard" />
+        <NavItem href="/calendar" icon={<IconCalendar />} label="Calendar" />
 
         {categories.map((c) => (
           <NavItem

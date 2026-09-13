@@ -75,6 +75,7 @@ model User {
   supportNotes             SupportNote[]
   supportFollowUps         SupportFollowUp[]     @relation("FollowUpResponsible")
   s3InformationRequests    S3InformationRequest[]
+  eventsCreated            Event[]               @relation("EventCreatedBy")
 
   @@index([email])
 }
@@ -311,6 +312,35 @@ model ReportedIssue {
   details      String?
   createdAt    DateTime  @default(now())
   resolvedAt   DateTime?
+}
+
+enum EventSource {
+  MANUAL
+  OUTLOOK
+}
+
+// School events & notices calendar. OUTLOOK-sourced rows are a per-sync
+// cache of the signed-in staff member's own Microsoft 365 calendar (see
+// src/lib/msGraphCalendar.ts) — never shown to other users, and safe to
+// delete/recreate on each sync.
+model Event {
+  id            String      @id @default(cuid())
+  title         String
+  description   String?
+  location      String?
+  startAt       DateTime
+  endAt         DateTime
+  allDay        Boolean     @default(false)
+  source        EventSource @default(MANUAL)
+  externalId    String?     // Outlook event id, when source = OUTLOOK
+  ownerId       String?     // for OUTLOOK events: whose calendar this came from
+  createdById   String?
+  createdBy     User?       @relation("EventCreatedBy", fields: [createdById], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([startAt])
+  @@index([source, ownerId])
 }
 
 model QuickLink {
