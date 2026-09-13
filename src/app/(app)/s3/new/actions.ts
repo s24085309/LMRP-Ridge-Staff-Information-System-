@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { requireS3User } from "@/lib/s3/authz";
 import { prisma } from "@/lib/prisma";
 import { nextReferenceNumber } from "@/lib/s3/reference-number";
+import { validateUpload, storeUpload } from "@/lib/uploads";
 
 export async function createSupportRequest(formData: FormData) {
   const session = await requireS3User();
@@ -25,6 +26,14 @@ export async function createSupportRequest(formData: FormData) {
   // Section 48 — required-field validation before saving.
   if (!learnerId || !categoryId || !activityType || !comment) {
     redirect("/s3/new?error=missing-fields");
+  }
+
+  const file = formData.get("attachment");
+  if (file instanceof File && file.size > 0) {
+    const validationError = validateUpload(file);
+    if (validationError) {
+      redirect(`/s3/new?error=${encodeURIComponent(validationError.error)}`);
+    }
   }
 
   const [learner, category] = await Promise.all([
@@ -68,6 +77,20 @@ export async function createSupportRequest(formData: FormData) {
       comment: finalComment,
     },
   });
+
+  if (file instanceof File && file.size > 0) {
+    const stored = await storeUpload(file);
+    await prisma.attachment.create({
+      data: {
+        supportRequestId: request.id,
+        fileName: stored.fileName,
+        fileType: stored.fileType,
+        fileSize: stored.fileSize,
+        storageKey: stored.storageKey,
+        uploadedById: userId,
+      },
+    });
+  }
 
   await prisma.auditLog.create({
     data: {

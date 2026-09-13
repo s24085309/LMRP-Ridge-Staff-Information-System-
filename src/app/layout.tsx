@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SCHOOL_CONFIG } from "@/lib/school-config";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ridge Oasis — Staff Information System",
-  description: "One-stop Administrative Staff Information System",
+  title: `${SCHOOL_CONFIG.schoolName} — Staff Information System`,
+  description: SCHOOL_CONFIG.systemName,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -55,7 +55,7 @@ export default async function LoginPage() {
           </div>
 
           <p className="mt-6 text-xs text-slate-400">
-            Use your school Microsoft account to access Ridge Oasis.
+            Use your school Microsoft account to access {SCHOOL_CONFIG.schoolName}.
           </p>
         </div>
       </div>

@@ -22,6 +22,7 @@ export default function SupportRequestForm({
   categories,
   prefill,
   duplicateWarning,
+  maxUploadBytes,
 }: {
   categories: SupportCategoryOption[];
   prefill?: {
@@ -33,6 +34,7 @@ export default function SupportRequestForm({
     comment?: string;
   };
   duplicateWarning?: { referenceNumber: string } | null;
+  maxUploadBytes: number;
 }) {
   const [learnerQuery, setLearnerQuery] = useState("");
   const [learnerResults, setLearnerResults] = useState<LearnerHit[]>([]);
@@ -111,7 +113,7 @@ export default function SupportRequestForm({
   }
 
   return (
-    <form action={createSupportRequest} className="space-y-6">
+    <form action={createSupportRequest} encType="multipart/form-data" className="space-y-6">
       {acknowledgedDuplicate && <input type="hidden" name="confirmDuplicate" value="true" />}
 
       <div>
@@ -296,6 +298,19 @@ export default function SupportRequestForm({
         />
         <p className="mt-1 text-xs text-slate-500">
           Please provide factual observations where possible. Avoid assumptions or diagnostic statements.
+        </p>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-200">Attachment (optional)</label>
+        <input
+          name="attachment"
+          type="file"
+          accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.gif"
+          className="ro-focus-ring w-full rounded-lg border border-white/10 bg-ro-navy-900 px-3 py-2 text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-ro-teal-500/20 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-ro-teal-500 hover:file:bg-ro-teal-500/30"
+        />
+        <p className="mt-1 text-xs text-slate-500">
+          PDF, Word, Excel, PowerPoint, or image. Max {maxUploadBytes / (1024 * 1024)}MB.
         </p>
       </div>
 

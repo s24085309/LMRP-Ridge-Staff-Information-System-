@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { SCHOOL_CONFIG } from "@/lib/school-config";
 import {
   CategoryIcon,
   IconHome,
@@ -43,7 +44,7 @@ export default function MobileNav({
           <nav className="flex w-72 flex-col gap-1 overflow-y-auto bg-ro-navy-900 p-4">
 
             <div className="mb-4 flex items-center justify-between">
-              <p className="text-sm font-bold text-white">Ridge Oasis</p>
+              <p className="text-sm font-bold text-white">{SCHOOL_CONFIG.schoolName}</p>
               <button
                 aria-label="Close navigation menu"
                 onClick={() => setOpen(false)}

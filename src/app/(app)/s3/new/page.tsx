@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireS3User } from "@/lib/s3/authz";
 import SupportRequestForm from "@/components/s3/SupportRequestForm";
+import { MAX_UPLOAD_BYTES } from "@/lib/uploads";
 
 export default async function NewSupportRequestPage({
   searchParams,
@@ -42,20 +43,20 @@ export default async function NewSupportRequestPage({
         write here.
       </p>
 
-      {params.error === "missing-fields" && (
+      {params.error && (
         <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-          Please complete all required fields before submitting.
-        </p>
-      )}
-      {params.error === "invalid-selection" && (
-        <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-          Please select a valid learner and category.
+          {params.error === "missing-fields"
+            ? "Please complete all required fields before submitting."
+            : params.error === "invalid-selection"
+              ? "Please select a valid learner and category."
+              : params.error}
         </p>
       )}
 
       <div className="mt-6">
         <SupportRequestForm
           categories={categories}
+          maxUploadBytes={MAX_UPLOAD_BYTES}
           duplicateWarning={params.duplicateOf ? { referenceNumber: params.duplicateOf } : null}
           prefill={{
             learner: learner

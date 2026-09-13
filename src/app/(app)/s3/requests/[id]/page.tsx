@@ -47,6 +47,7 @@ export default async function SupportCasePage({ params }: { params: Promise<{ id
       notes: { include: { author: true }, orderBy: { createdAt: "asc" } },
       actions: { include: { createdBy: true }, orderBy: { createdAt: "asc" } },
       followUps: { include: { responsibleUser: true }, orderBy: { followUpDate: "asc" } },
+      attachments: { orderBy: { uploadedAt: "asc" } },
     },
   });
   if (!request) notFound();
@@ -99,6 +100,17 @@ export default async function SupportCasePage({ params }: { params: Promise<{ id
           <Field label="Activity" value={`${request.activityType}${request.activityName ? ` — ${request.activityName}` : ""}`} />
         </div>
         <p className="mt-3 whitespace-pre-wrap rounded-lg bg-ro-navy-800 p-3 text-sm text-slate-200">{request.comment}</p>
+        {request.attachments.length > 0 && (
+          <ul className="mt-3 space-y-1">
+            {request.attachments.map((a) => (
+              <li key={a.id}>
+                <a href={`/api/attachments/${a.id}`} className="text-sm ro-teal-text hover:underline">
+                  📎 {a.fileName} ({Math.round(a.fileSize / 1024)} KB)
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {isAdmin ? (

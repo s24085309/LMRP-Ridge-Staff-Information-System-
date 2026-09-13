@@ -174,18 +174,21 @@ model ResourceTag {
 }
 
 model Attachment {
-  id             String   @id @default(cuid())
-  resourceId     String
-  resource       Resource @relation(fields: [resourceId], references: [id])
-  fileName       String
-  fileType       String
-  fileSize       Int
-  storageKey     String // path/key in storage backend
-  version        Int      @default(1)
-  uploadedById   String
-  uploadedAt     DateTime @default(now())
+  id               String          @id @default(cuid())
+  resourceId       String?
+  resource         Resource?       @relation(fields: [resourceId], references: [id])
+  supportRequestId String?
+  supportRequest   SupportRequest? @relation(fields: [supportRequestId], references: [id])
+  fileName         String
+  fileType         String
+  fileSize         Int
+  storageKey       String // path/key in storage backend
+  version          Int             @default(1)
+  uploadedById     String
+  uploadedAt       DateTime        @default(now())
 
   @@index([resourceId])
+  @@index([supportRequestId])
 }
 
 model Submission {
@@ -445,9 +448,10 @@ model SupportRequest {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  actions   SupportAction[]
-  notes     SupportNote[]
-  followUps SupportFollowUp[]
+  actions     SupportAction[]
+  notes       SupportNote[]
+  followUps   SupportFollowUp[]
+  attachments Attachment[]
 
   @@index([status])
   @@index([learnerId])
