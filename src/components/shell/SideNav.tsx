@@ -21,7 +21,7 @@ export default async function SideNav({ isAdmin }: { isAdmin: boolean }) {
     <nav className="hidden w-64 flex-shrink-0 border-r border-white/5 bg-ro-navy-900 px-3 py-6 lg:flex lg:flex-col">
       <div className="mb-6 px-3">
         <p className="text-lg font-bold text-white">{SCHOOL_CONFIG.schoolName}</p>
-        <p className="text-xs text-slate-400">Staff Information System</p>
+        <p className="text-xs text-slate-400">{SCHOOL_CONFIG.systemName}</p>
       </div>
 
       <ul className="flex-1 space-y-1 overflow-y-auto">
